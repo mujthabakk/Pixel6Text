@@ -43,60 +43,56 @@ class HomePage extends ConsumerWidget {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(4),
-              child: Container(
-                width: double.infinity,
-                height: double.infinity,
-                decoration: BoxDecoration(
-                  border: Border.all(width: 2, color: Colors.black12),
-                  borderRadius: BorderRadius.circular(8),
+      body: Padding(
+        padding: const EdgeInsets.all(4),
+        child: Container(
+          width: double.infinity,
+          decoration: BoxDecoration(
+            border: Border.all(width: 2, color: Colors.black12),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text("id"),
+                    Text(" image"),
+                    Text("Full Name"),
+                    Text("Demographiy"),
+                    Text("Description"),
+                    Text("Location"),
+                  ],
                 ),
+              ),
+              Expanded(
                 child: ListView.separated(
-                  shrinkWrap: true,
+                  padding: const EdgeInsets.all(8),
                   itemBuilder: (context, index) {
-                    return ListTile(
-                      title: Text('Item $index'),
-                      leading: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text('${index + 1}'),
-                          const SizedBox(width: 8),
-                          const CircleAvatar(
-                            backgroundImage: NetworkImage(
-                                'https://dummyjson.com/icon/henryh/128'),
-                          ),
-                        ],
-                      ),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: const [
-                          Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 24),
-                            child: Text("data"),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 24),
-                            child: Text("data"),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 24),
-                            child: Text("data"),
-                          ),
-                        ],
-                      ), // Add your trailing widget here
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('${index + 1}'),
+                        const CircleAvatar(
+                          backgroundImage: NetworkImage(
+                              'https://dummyjson.com/icon/henryh/128'),
+                        ),
+                        Text('Employee ${index + 1}'),
+                        Text("Data 1"),
+                        Text("Data 1"),
+                        Text("Data 1"),
+                      ],
                     );
                   },
                   separatorBuilder: (context, index) => const Divider(),
                   itemCount: 20,
                 ),
               ),
-            ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
