@@ -126,9 +126,8 @@ class FilterWidget extends ConsumerWidget {
     final genderValue = ref.watch(genderProvider);
     final countryValue = ref.watch(countryProvider);
 
-    final genders = data.users!.map((user) => user.gender!).toSet().toList();
-    final countries =
-        data.users!.map((user) => user.address!.country!).toSet().toList();
+    final genders = ["Select All", ...data.users!.map((user) => user.gender!).toSet().toList()];
+    final countries = ["Select All", ...data.users!.map((user) => user.address!.country!).toSet().toList()];
 
     return Row(
       children: [
@@ -139,11 +138,15 @@ class FilterWidget extends ConsumerWidget {
           value: genderValue,
           items: genders,
           onChanged: (String? newValue) {
-            ref.read(genderProvider.notifier).state = newValue;
+            if (newValue == "Select All") {
+              ref.read(genderProvider.notifier).state = null;
+            } else {
+              ref.read(genderProvider.notifier).state = newValue;
+            }
             ref
                 .read(FilterControllerProvider(data: data.users!).notifier)
                 .filterData(
-                  newValue,
+                  newValue == "Select All" ? null : newValue,
                   ref.read(countryProvider),
                 );
           },
@@ -156,12 +159,16 @@ class FilterWidget extends ConsumerWidget {
           value: countryValue,
           items: countries,
           onChanged: (String? newValue) {
-            ref.read(countryProvider.notifier).state = newValue;
+            if (newValue == "Select All") {
+              ref.read(countryProvider.notifier).state = null;
+            } else {
+              ref.read(countryProvider.notifier).state = newValue;
+            }
             ref
                 .read(FilterControllerProvider(data: data.users!).notifier)
                 .filterData(
                   ref.read(genderProvider),
-                  newValue,
+                  newValue == "Select All" ? null : newValue,
                 );
           },
         ),
