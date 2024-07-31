@@ -14,15 +14,6 @@ class HomePage extends ConsumerWidget {
 
     return initialUserData.when(
       data: (data) {
-        Future.microtask(() {
-          ref
-              .read(FilterControllerProvider(data: data.users!).notifier)
-              .filterData(
-                ref.read(genderProvider),
-                ref.read(countryProvider),
-              );
-        });
-
         final filteredUserData =
             ref.watch(FilterControllerProvider(data: data.users!));
 
@@ -149,14 +140,12 @@ class FilterWidget extends ConsumerWidget {
           items: genders,
           onChanged: (String? newValue) {
             ref.read(genderProvider.notifier).state = newValue;
-            Future.microtask(() {
-              ref
-                  .read(FilterControllerProvider(data: data.users!).notifier)
-                  .filterData(
-                    newValue,
-                    ref.read(countryProvider),
-                  );
-            });
+            ref
+                .read(FilterControllerProvider(data: data.users!).notifier)
+                .filterData(
+                  newValue,
+                  ref.read(countryProvider),
+                );
           },
         ),
         const SizedBox(width: 8),
@@ -168,14 +157,12 @@ class FilterWidget extends ConsumerWidget {
           items: countries,
           onChanged: (String? newValue) {
             ref.read(countryProvider.notifier).state = newValue;
-            Future.microtask(() {
-              ref
-                  .read(FilterControllerProvider(data: data.users!).notifier)
-                  .filterData(
-                    ref.read(genderProvider),
-                    newValue,
-                  );
-            });
+            ref
+                .read(FilterControllerProvider(data: data.users!).notifier)
+                .filterData(
+                  ref.read(genderProvider),
+                  newValue,
+                );
           },
         ),
       ],
