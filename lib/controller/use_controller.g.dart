@@ -1,12 +1,12 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'user_controller.dart';
+part of 'use_controller.dart';
 
 // **************************************************************************
 // RiverpodGenerator
 // **************************************************************************
 
-String _$userDataHash() => r'2ff6b883ae0ef2a015a2a2a7d0bd085616a8bd96';
+String _$userDataHash() => r'008796c027ae39cfe89d08138893e71a7dd67189';
 
 /// See also [userData].
 @ProviderFor(userData)

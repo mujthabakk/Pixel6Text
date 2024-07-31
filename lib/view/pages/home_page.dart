@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:pixel6_machine_test/controller/user_controller.dart';
+import 'package:pixel6_machine_test/controller/filter_controller.dart';
+import 'package:pixel6_machine_test/controller/use_controller.dart';
+import 'package:pixel6_machine_test/model/user_model/user.dart';
 import 'package:pixel6_machine_test/model/user_model/user_model.dart';
 
 class HomePage extends ConsumerWidget {
@@ -8,73 +10,63 @@ class HomePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final initialUserData = ref.watch(initialUserDataProvider);
-    final filteredUserData = ref.watch(userDataProvider);
+    final initialUserData = ref.watch(userDataProvider);
 
-    return filteredUserData.when(
+    return initialUserData.when(
+      data: (data) {
+        Future.microtask(() {
+          ref
+              .read(FilterControllerProvider(data: data.users!).notifier)
+              .filterData(
+                ref.read(genderProvider),
+                ref.read(countryProvider),
+              );
+        });
+
+        final filteredUserData =
+            ref.watch(FilterControllerProvider(data: data.users!));
+
+        return Scaffold(
+          appBar: AppBar(
+            title: const Text(
+              "Employees",
+              style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+            ),
+            actions: [
+              FilterWidget(
+                data: data,
+                width: 100,
+                height: 40,
+              ),
+            ],
+          ),
+          body: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(4),
+              child: Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  border: Border.all(width: 2, color: Colors.black12),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Column(
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.all(8.0),
+                    ),
+                    DataTableWidget(data: filteredUserData),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
       error: (error, stackTrace) => Center(
         child: Text(error.toString()),
       ),
       loading: () => const Center(
         child: CircularProgressIndicator(),
-      ),
-      data: (data) => Scaffold(
-        appBar: AppBar(
-          title: const Text(
-            "Employees",
-            style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
-          ),
-          actions: [
-            FilterWidget(
-              data: data,
-              width: 100,
-              height: 40,
-            ),
-          ],
-        ),
-        body: initialUserData.when(
-          data: (initialData) {
-            return filteredUserData.when(
-              data: (filteredData) {
-                return SingleChildScrollView(
-                  child: Padding(
-                    padding: const EdgeInsets.all(4),
-                    child: Container(
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        border: Border.all(width: 2, color: Colors.black12),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Column(
-                        children: [
-                          const Padding(
-                            padding: EdgeInsets.all(8.0),
-                          ),
-                          DataTableWidget(
-                              data: filteredData.users!.isEmpty
-                                  ? initialData
-                                  : filteredData),
-                        ],
-                      ),
-                    ),
-                  ),
-                );
-              },
-              error: (error, stackTrace) => Center(
-                child: Text(error.toString()),
-              ),
-              loading: () => const Center(
-                child: CircularProgressIndicator(),
-              ),
-            );
-          },
-          error: (error, stackTrace) => Center(
-            child: Text(error.toString()),
-          ),
-          loading: () => const Center(
-            child: CircularProgressIndicator(),
-          ),
-        ),
       ),
     );
   }
@@ -86,7 +78,7 @@ class DataTableWidget extends StatelessWidget {
     super.key,
   });
 
-  final UserModel data;
+  final List<User> data;
 
   @override
   Widget build(BuildContext context) {
@@ -103,10 +95,10 @@ class DataTableWidget extends StatelessWidget {
           ),
           DataColumn(label: Text('Location')),
         ],
-        rows: data.users!.map((user) {
+        rows: data.map((user) {
           return DataRow(
             cells: [
-              DataCell(Center(child: Text('${data.users!.indexOf(user) + 1}'))),
+              DataCell(Center(child: Text('${data.indexOf(user) + 1}'))),
               DataCell(Center(
                 child: CircleAvatar(
                   backgroundImage: NetworkImage(
@@ -156,12 +148,18 @@ class FilterWidget extends ConsumerWidget {
           value: genderValue,
           items: genders,
           onChanged: (String? newValue) {
-            if (newValue != null) {
-              ref.read(genderProvider.notifier).state = newValue;
-              ref.invalidate(userDataProvider);
-            }
+            ref.read(genderProvider.notifier).state = newValue;
+            Future.microtask(() {
+              ref
+                  .read(FilterControllerProvider(data: data.users!).notifier)
+                  .filterData(
+                    newValue,
+                    ref.read(countryProvider),
+                  );
+            });
           },
         ),
+        const SizedBox(width: 8),
         DropdownButtonWidget(
           text: 'Country',
           width: width,
@@ -169,10 +167,15 @@ class FilterWidget extends ConsumerWidget {
           value: countryValue,
           items: countries,
           onChanged: (String? newValue) {
-            if (newValue != null) {
-              ref.read(countryProvider.notifier).state = newValue;
-              ref.invalidate(userDataProvider);
-            }
+            ref.read(countryProvider.notifier).state = newValue;
+            Future.microtask(() {
+              ref
+                  .read(FilterControllerProvider(data: data.users!).notifier)
+                  .filterData(
+                    ref.read(genderProvider),
+                    newValue,
+                  );
+            });
           },
         ),
       ],
@@ -231,11 +234,11 @@ class DropdownButtonWidget extends StatelessWidget {
   }
 }
 
-// Define providers for the dropdown values
+// Providers for gender and country filters
 final genderProvider = StateProvider<String?>((ref) {
-  return null;
+  return null; // Initial value
 });
 
 final countryProvider = StateProvider<String?>((ref) {
-  return null;
+  return null; // Initial value
 });
