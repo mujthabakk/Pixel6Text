@@ -4,6 +4,8 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'use_controller.g.dart';
 
 @riverpod
+
+// fech all data
 Future<UserModel> userData(UserDataRef ref) async {
   return await UserService().getUser();
 }
